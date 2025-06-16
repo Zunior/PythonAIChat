@@ -1,0 +1,739 @@
+CaseVision Architecture Overview   
+Version 6.x 
+20 Jan 2015 
+Approved 
+Proprietary Rights Notice 
+All rights reserved. 
+© BancTec, Inc. 2015 
+This material contains the valuable properties and trade secrets of BancTec, Inc. of Dallas, 
+Texas,  embodying  substantial  creative  efforts  and  confidential  information,  ideas  and 
+expressions,  no  part  of  which  may  be  reproduced  or  transmitted  in  any  form  or  by  any 
+means,  electronic,  mechanical  or  otherwise,  including  photocopying  and  recording,  or  in 
+connection  with  any  information  storage  or  retrieval  system  without  permission  in  writing 
+from a BancTec, Inc. Corporate Officer. 
+Trademarks 
+The  brand  names  and  product  names  used  in  this  document  are  either  trademarks  or 
+registered trademarks of their respective companies. 
+Change History 
+Version  Date  
+Author(s) 
+1.1 
+1.2 
+4.1 
+6.x 
+14-Jan-2010 
+12-Jan-2011 
+Pete Dinham 
+Pete Dinham 
+19-Jan-2011 
+Pete Dinham 
+20-Jan-2015 
+Pete Dinham 
+Revision Details 
+Release document for eFP  4.x 
+Updated to reflect 4.1 
+Inconsistent document/versioning numbering 
+corrected 
+Updated to reflect CaseVision 6.x 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ ii  
+Contents 
+1 
+2 
+Introduction and Scope ------------------------------------------------------------------------------------------------------------------- 5 
+Summary and Goals ------------------------------------------------------------------------------------------------------------------------ 5 
+3  Main Architectural Principles --------------------------------------------------------------------------------------------------------- 6 
+Server Architecture ...................................................................................... 6 
+3.1 
+3.2  Client Architecture ....................................................................................... 7 
+3.2.1  Web Workplace ............................................................................. 7 
+Responsive Web UI ........................................................................ 7 
+3.2.2 
+Joomla! Components ...................................................................... 7 
+3.2.3 
+.NET framework ............................................................................ 8 
+3.2.4 
+Other Client Options ....................................................................... 8 
+3.2.5 
+4.1 
+4  Major Architectural Components--------------------------------------------------------------------------------------------------- 9 
+Process Engine ............................................................................................ 9 
+Data Modelling and Data Management ............................................ 9 
+4.1.1 
+Business Process Management ...................................................... 10 
+4.1.2 
+Business Rules ............................................................................. 10 
+4.1.3 
+Authentication and Authorisation ................................................... 10 
+4.1.4 
+Audit and Logging ........................................................................ 10 
+4.1.5 
+UI Generation .............................................................................. 10 
+4.1.6 
+Scheduling and Deadlines ............................................................. 11 
+4.1.7 
+4.2  Content Repository .................................................................................... 11 
+Non-Archive Based ....................................................................... 11 
+Archive Based .............................................................................. 11 
+4.3  Web Client ................................................................................................ 12 
+4.2.1 
+4.2.2 
+5 
+6 
+Extensibility Architecture ------------------------------------------------------------------------------------------------------------- 13 
+5.1  Client-side Extensions ................................................................................ 13 
+5.1.1  Web Workplace clients ................................................................. 13 
+Server-side Extensions ............................................................................... 13 
+Action Classes ............................................................................. 13 
+5.2.1 
+Standalone Components ............................................................... 13 
+5.2.2 
+5.2 
+Integration Architecture --------------------------------------------------------------------------------------------------------------- 14 
+Integration methods for other systems into CaseVision ................................. 14 
+6.1 
+REST interface ............................................................................. 14 
+6.1.1 
+Function level interface ................................................................ 15 
+6.1.2 
+6.1.3 
+MI level interface ......................................................................... 15 
+Integration methods for CaseVision into other systems ................................. 15 
+Client side methods ...................................................................... 16 
+6.2.1 
+Server side methods .................................................................... 16 
+6.2.2 
+6.2 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ iii  
+7  Authentication and Authorisation ---------------------------------------------------------------------------------------------- 17 
+8 
+Internationalisation and Accessibility ---------------------------------------------------------------------------------------- 18 
+9  Deployment Architecture ------------------------------------------------------------------------------------------------------------- 18 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ iv  
+CaseVision  Architecture Overview 
+Introduction and Scope 
+1 
+Introduction and Scope 
+This  document  is  intended  to  provide  an  overview  of  the  main  architectural  principles  and 
+features of the CaseVision 6.x series solution.  It is aimed at the general reader with a good 
+level  of  technical  knowledge  rather  than  being  for  technical  specialists.  The  intended 
+outcome  is  that  the  reader  should  gain  a  firm  background  understanding  of  the  solution 
+architecture  rather  than  the  ability  to  work  with,  or  deploy  it.    Other,  far  more  detailed 
+documents in the CaseVision documentation set are available to fulfil that requirement. 
+2  Summary and Goals 
+As IT solutions should, CaseVision’s architecture reflects its intended usage and deployment 
+scale, and the solution has been developed towards a series of goals which were set early 
+on in the product design process.  These were to create a system capable of delivering Case 
+Management and Business Process Management based functionality which: 
+• 
+• 
+Is built on a proven enterprise platform, suitable for: 
+o  High end, complex, high volume processing 
+o  Multi-Server, Multi-site deployment 
+Is  oriented  around  a  case-handling  paradigm  to  provide  a  coherent  and  rich  data 
+management  capability 
+o  Thereby expediting the delivery  of  Case Management type solutions without 
+precluding the delivery of other types of BPM/Workflow solution 
+•  Conforms  recognisably  to  the  industry  analysts’  mainstream  definition  of  a  BPMS 
+including elements of 
+o  Workflow Management 
+o  Process Modelling and Simulation 
+o  Rules Processing 
+Integration 
+o 
+o  Monitoring and Reporting 
+Is predictably scalable into very high transaction / user counts 
+• 
+•  Leverages BancTec’s existing capabilities in Workflow Management (Plexus Floware) 
+•  Leverages  BancTec’s  existing  capabilities  in  image  capture  and  storage  to  provide 
+content-rich object handling as a core feature 
+•  Exposes runtime and historical data in order to provide rich business intelligence 
+• 
+Implements both extensibility and integration in such a way as to conform to current 
+and forecast industry practices and technologies 
+The  architecture  which  was  evolved  over  four  major  releases  of  the  product  has  been 
+consistent in the pursuit, realisation and extension of the basic aims. 
+CaseVision  Architecture Overview 
+Main Architectural Principles 
+3  Main Architectural Principles 
+Figure 1 below illustrates the basic run-time architecture of CaseVision. 
+Figure 1 Overview of CaseVision Architecture 
+Server Architecture 
+3.1 
+It is a conventionally architected three-tier solution.  The main server side components are a 
+data persistence layer which is managed entirely through conventional relational databases 
+(with the exception of very specialist functions such as bulk image storage) and a pure J2EE 
+application  running  inside  an  industry  standard  application  server  environment.    Together 
+these are responsible for maintaining the data architecture and the transactional integrity of 
+the  system.  The case management,  workflow management and rule engines  are tied  into 
+this same transaction context meaning all business transactions are fully protected and data 
+/ workflow inconsistencies are prevented. 
+Externally  this  low-level  management  is  presented  as  a  range  of  higher-level  business 
+services which are explained in more detail in later sections of this document. 
+These  business  services  are  exposed  through  an  extensive,  object-based  API  set  which  is 
+implemented in both native java form and as SOAP with the appropriate WSDL packaging to 
+allow them to be invoked as web-services. 
+The diagram also  shows a secondary set  of  server functionality  which  provides  high-speed 
+data  preparation  services  for  specific  client  tasks  such  as  high-speed  keying  but  as  this  is 
+implemented  using  .NET  technology  on  the  client  side,  the  server  side  also  reflects  this 
+architecture.   It presents its major interface as web-services through  WCF.    However both 
+the client and server side .NET components are optional features of the product – they are 
+there to enable very high-speed image-based data capture and correction applications and 
+are not delivered as part of the standard product. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 6  
+CaseVision  Architecture Overview 
+Main Architectural Principles 
+Client Architecture 
+3.2 
+The  functionality  delivered  by  CaseVision  based  solutions  usually  requires  an  extensive 
+interaction  with  both  human  users  of  the  system  and  unattended  client  based  functions.  
+The original design for CaseVision assumed the delivery of the UX through a browser-based, 
+knowledge worker interface which gave powerful and comprehensive access to the features 
+appropriate to the user, given their role and other permission factors.  This was called the 
+Web Workplace (WWP).  Increasingly, though, this is only one of a number of ways in which 
+users  of  the  system  may  wish  to  interact  and  although  this  WWP  is  still  the  default  UX 
+exposed by the system, other options are now supported. 
+3.2.1  Web Workplace 
+The Web Workplace delivers a highly configurable,  knowledge worker  orientated,  browser-
+based  user  experience  through  an  Apache  hosted  web-application  which  runs  servlets  to 
+dynamically generate JSP/HTML from XML forms and behaviour templates delivered by the 
+CaseVision  Engine  API.    The  HTML  is  rendered  using  styling  elements  from  standard  CSS 
+(Cascading Style Sheets) files. The servlet architecture also handles the user responses and 
+repackaging  the  return  XML  to  the  engine.  The  XML  forms  and  behaviour  templates  are 
+defined by the system designer using the GUI designer tool called Process Builder, which is 
+described below. 
+3.2.2 
+Responsive Web UI 
+it  is  increasingly  the  case  that  users  may  wish  to  access  Case  Management  and  workflow 
+functions from mobile devices. CaseVision offers the option to present the same kind of UX 
+elements through a different set of XSLTs which are delivered in a way which is responsive – 
+that  is  it  automatically  adapts  to  different  form  factors  and  screen  orientations,  moving 
+blocks of functional elements around and truncating/wrapping text elements as appropriate 
+to the new screen real-estate which is available.  This responsive UX is being phased in from 
+CaseVision 6.0.2 on and may eventually replace the WWP as the default UX. 
+3.2.3 
+Joomla! Components 
+A third option is that we have created a subset of the CaseVision UI components which are 
+delivered  as  plug-ins  to  the  extensible  framework  provided  by  the  popular  Joomla!  Web 
+Content Management System (WCM).  What this means is that a full enterprise-level website 
+can  be  created  which  contains  live  connections  to  the  underlying  CaseVision  platform  and 
+allows  users  to  interact  directly  with  cases  and  workflows  without  the  need  to  create 
+separate integration layers between the website platform and CaseVision.  This is obviously 
+very  useful  in  extending  the  reach  of  a  system  to  external  stakeholders  in  a  B2B  or  B2C 
+environment.  Where  access  to  protected  resources  in  CaseVision  is  required,  the 
+authentication  mechanisms  of  Joomla!  and  CaseVision  can  be  synchronised  to  offer  end-
+users  single  sign-on  across  the  two  platforms.    Not  all  the  functionality  of  CaseVision  is 
+available  via  these  components,  but  the  range  of  capability  accessible  in  this  way  is being 
+extended and we are also considering offering the plug-in components for other websites as 
+well. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 7  
+CaseVision  Architecture Overview 
+Main Architectural Principles 
+3.2.4 
+.NET framework 
+As noted above, there  are some optional  components available  which  are  not delivered  as 
+standard  with  the  CaseVision  product.    These  exist  to  provide  a  high  speed,  low-latency 
+client  framework  with  (where  the  function  implemented  is  a  human  attended  one)  a  very 
+rich  and  responsive  UI.  This  set  of  client  components  is  implemented  in  the  .NET 
+architecture.  The  deployment  method  for  these  clients  is  ClickOnce,  thus  delivering  zero-
+deployment, centrally managed components for remote working.   
+Other Client Options 
+3.2.5 
+As  one  off  implementations,  we  have  also  created  both  plug-ins  for  social  media  sites 
+(specifically Facebook) to allow a similar approach to that taken with Joomla! – limited but 
+direct interaction with cases relating to that specific person within a UX with which they feel 
+comfortable and familiar. 
+We have also produced implementations of cross-platform mobile apps which can download 
+cases  from  the  CaseVision  server,  allowing  the  user  to  work  with  the  cases  in  an  off-line 
+mode and re-synchronisation of those cases to the workflow when they are uploaded to the 
+server again. 
+Neither of these capabilities is core CaseVision functionality as yet, but can be offered on a 
+project basis to support extended working across B2C and mobile environments. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 8  
+CaseVision  Architecture Overview 
+Major Architectural Components 
+4  Major Architectural Components 
+A  more  detailed  view  of  the  CaseVision  architecture  is  shown  in  Figure  2.    This  diagram 
+shows  the  main  data  flows  between  the  components  and  the  technology  used  for  the 
+interfaces between them.   
+This section looks at some of these key components.  
+C
+L
+I
+E
+N
+T
+S
+E
+R
+V
+E
+R
+D
+A
+T
+A
+Other
+IT 
+Assets
+Configuration Tools – 
+Process Builder
+Configuration Tools – 
+Process Analyzer
+Web Service
+Call
+HTTP/SOAP
+CaseVision Server
+Config
+Data
+(SOAP)
+Config
+Data
+(RMI - JNP)
+Data, Rules and Workflow
+Management
+Authentication 
+(usually LDAP)
+Data & BLOBS
+For free-text 
+indexing
+Java
+“action”
+classes
+OJDBC
+Web Workplace
+JavaScript
+Production Data
+and Images
+(HTTP)
+Servlet
+Engine / Web
+Server
+Production and 
+Configuration Data
+BLOB Data
+OJDBC
+OJDBC
+                           RDBMS                                                                       
+Authentication
+Data Repository
+SOLR
+Free Text Index 
+Repository
+Production Data, 
+Images and all 
+status repository 
+Event 
+information,
+Audit 
+repository
+Configuration 
+Repository
+Content 
+Repository
+via abstraction 
+layer
+Server Components
+Extensible Server Components
+Persisted, transaction 
+managed data
+Client Components
+Extensible Client Components
+Transient Data
+Figure 2 – CaseVision  Component Architecture 
+Process Engine 
+4.1 
+The  core  Process  Engine  is  shown  at  the  left  of  the  server  layer.  This  is  a  set  of  J2EE 
+services which leverage the capabilities and features of the application server in which they 
+run  and  the  relational  database  with  which  they  interact.  The  services  were  designed  and 
+developed  as  a  coherent  set  and  make  full  use  of  the  transactional  controls  provided  by 
+J2EE so that, for example, a business step which changes data, executes a business rule on 
+that  data  and  then  makes  workflow  transition  according  to  the  rule  outcome  will  all  be 
+executed  in  the  same  transactional  context  and  will  succeed  or  fail  and  all  be  backed  out 
+together.  
+ The main high-level services provided by the CaseVision Process Engine are: 
+Data Modelling and Data Management 
+4.1.1 
+CaseVision  has  an  internal  data  model  to  represent  the  business  entities  on  which  it 
+operates  (customers,  documents,  deliverables,  batches  etc.).    The  Process  Engine  uses  a 
+case management metaphor to configure and manipulate this data model which provides a 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 9  
+CaseVision  Architecture Overview 
+Major Architectural Components 
+clear  framework  for  users  and  developers  and  good  extensibility  mechanisms  both  for 
+product development purposes and for custom project teams.  The Case provides a specific 
+context in which end-users can work and generally provides a clear analogue between the 
+IT solution and the real-world objects with which they are working. 
+Business Process Management 
+4.1.2 
+CaseVision  uses  a  graphical  modelling  and  execution  system  to  represent  the  various 
+business  processes  which  are  implemented  within  it.  The  tool  used  to  design  and  amend 
+business  process  flows  (Process  Analyzer)  is  also  capable  of  sophisticated  simulation  and 
+analysis of those process designs.   
+At runtime the Process Engines supports all common components of process architectures – 
+single  and  parallel-path  executions,  multi-way  branching,  n-level  submapping,  human  and 
+system executed activities etc. 
+Business Rules  
+4.1.3 
+CaseVision also contains a simple but effective rules engine which make decisions based on 
+data  from  the  business  data  model  and  uses  the  outcome  to  change  workflow  routings, 
+invoke custom code components or perform other basic functions.  
+More extensive business rules functionality is available in the optional DROOLS rule engine 
+which can be installed along with CaseVision.  In this instance more advanced rule features 
+including decision table support is available and these features are still fully integrated into 
+the CaseVision case-based data model.  
+Authentication and Authorisation 
+4.1.4 
+This is a core capability of the CaseVision server but is of such significance in many aspects 
+that it has been covered in this document as a top-level subject of its own (see section 7). 
+Audit and Logging 
+4.1.5 
+The  CaseVision  Process  Engine  provides  a  standardised  audit  service  to  record  diagnostic 
+and evidentiary event information.  This includes all logins and logouts, function starts/end, 
+data accesses, data amendments etc. Any creates or updates will include all data elements 
+with old and new values. All events are time, date and operator stamped. A forensic auditing 
+tool  is  provided  to  perform  investigations  into  audited  information.    Authorised  users  can 
+search  for  specific  events  and  chains  of  actions  can  be  followed  in  several  dimensions 
+(follow a specific case, follow a specific operator, backwards and forwards in time from the 
+original specific event). 
+There is also a framework against which errors, warnings and other events can be logged by 
+the configured application. 
+UI Generation 
+4.1.6 
+The  browser  based  interface  of  CaseVision  is  entirely  generated  from  configuration 
+information.    UI’s  are  created  dynamically  in  XML  form  by  the  CaseVision  Process  Engine 
+and  rendered  via  the  web  application  servlets  into  HTML  which  is  consumed  by  the  client 
+browser session.   
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 10  
+CaseVision  Architecture Overview 
+Major Architectural Components 
+The standard UI can  be extended and  all important elements modified  by  use  of  standard 
+web application features such as XSLTs and Cascading Style Sheets.  These will be reflected 
+in  the  finally  rendered  UI  allowing  easy  customisation  and  styling  of  end-user  desktops  to 
+reflect corporate standards, multi-branding of services etc. 
+Scheduling and Deadlines 
+4.1.7 
+The system provides full support for calendars (shared and personal) and the assignment of 
+tasks  to  users  which  are  also  implanted  following  the  case  management  metaphor.  
+Deadlines can be set on cases within the system to provide near-time and full-time warnings 
+with  configured  actions  which  can  take  place  as  a  result  (raise  priority,  send  an  email, 
+invoke a remote web service etc.) Web Server. 
+The  Web  Server  is  a  standard  component  which  provides  the  servlet/JSP  hosting 
+environment.    It  receives  XML  representations  of  the  user  experience  from  the  Process 
+Engine  and  dynamically  creates  and  serves  the  HTML  pages  which  together  comprise  the 
+Web Workplace user interface. 
+Content Repository 
+4.2 
+Architecturally,  this  can  be  viewed  as  part  of  the  CaseVision  Process  Engine  but  is  a 
+separately deployed component which takes care of secure archiving of document images.  
+The  same  (optional)  free-text  indexing  engine  which  covers  the  structured  data  can  also 
+index most common content types as well, providing full free-text searching across all work 
+items (although this is still subject to the permissions model referred to above) 
+Non-Archive Based 
+4.2.1 
+Optionally  images  and  other  unstructured  content  can  be  stored  as  BLOBS  within  the 
+database  –  best  practice  being  that  the  database  should  be  configured  to  externalise  the 
+BLOB  storage  to  maintain  a  relatively  compact  structured  data  repository  for  backup  and 
+checkpoint purposes.  All the major databases now offer this option. 
+4.2.2 
+Archive Based 
+In most production systems it is recommended that unstructured content should be stored 
+in an archive – the decision is just a configuration option in the Process Builder.  If archive is 
+selected,  the  storage  is  handled  by  an  abstraction  layer  called  the  Archive  Adaptor.    By 
+default, the abstraction layer targets ArchiveVision – a set of components which form part of 
+another  BancTec  standalone  solution  designed  for  long-term,  large-scale  archiving  using 
+enterprise-class storage technologies. 
+However  by  replacing  the  default  abstraction  plugin  with  another,  a  completely  different 
+content  management  interface  can  be  targeted  –  document  management,  flat-file,  cloud 
+store,  collaboration  framework  or  whatever.    As  long  as  it  exposes  and  interface  which 
+supports  the  three  or  four  key  functions  required  to  store,  access  and  manipulate  content 
+within CaseVision, an appropriate Archive Adaptor can be created 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 11  
+CaseVision  Architecture Overview 
+Major Architectural Components 
+4.3  Web Client 
+CaseVision’s  standard  end  user  UI  is  browser  based  and  consists  of  menus,  data 
+manipulation screens, image displays and browsable links all of which are configured using 
+the screen designer tool in the Process Builder. 
+Menus are both role and context sensitive – they will adapt according to the role the user is 
+fulfilling and the particular case object, Business Function or workflow step that is currently 
+in context. 
+The  data  manipulation  screens  allow  users  to  search,  view,  edit  and  delete  case  data 
+(depending  on  the  permissions  their  role  provides,  naturally).    Searches  return  lists  which 
+can  be  ordered  and  grouped  dynamically  by  the  user  and  within  which  can  be  embedded 
+links to execute functions directly on the case data contained in that row. 
+The image display can either be embedded in the main form or provided as a floating pane 
+outside  the  main  browser  window.    The  image  viewer  supports  features  such  as  rotation, 
+scaling, printing, text annotation, highlighting/redaction and so on. 
+The links provide ways to invoke other Business Functions directly from the context of the 
+data being viewed OR to browse the case hierarchy linked to the case currently in context.  
+The case hierarchy can be viewed as a tree structure from the current case or can be fully 
+navigated by selecting a linked object and then choosing to bring that into context. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 12  
+CaseVision  Architecture Overview 
+Extensibility Architecture 
+5  Extensibility Architecture 
+The  CaseVision  system  has  been  designed  as  a  platform  on  which  to  deliver  enterprise 
+applications.  As such, although there is a huge range of custom behaviours enabled simply 
+by  using  the  configuration  tools  provided,  it  fully  anticipates  that  customisations  and 
+additions to the base solution will be required to deliver the breadth of functionality required 
+by such applications.   
+Furthermore,  enterprise  style applications will usually require extensive  integrations,  this is 
+covered  in  the  following  chapter  but  quite  often  the  integration  will  be  realised  by  the 
+addition of a custom extension to the core configured system behaviour. 
+There are several types and levels of extensibility that are available: 
+Client-side Extensions 
+5.1 
+5.1.1  Web Workplace clients 
+The Web Workplace provides a series of call-out events associated with almost every active 
+element on its HTML pages to which javascript extensions can be added.  These are usually 
+used  to  implement  client-side  validations,  or  to  implement  custom  behaviours  in  the 
+navigation of the client application.  However server-round-trip calls can also be made from 
+Web Workplace extensions via a customisable proxy servlet in the web-application.  
+Any javascript added to an implementation will be preserved if/when a solution is upgraded 
+to a later CaseVision release. 
+Action Classes 
+Server-side Extensions 
+5.2 
+5.2.1 
+The BPM system provides the facility to place steps in the workflow which call external code 
+which  is  executed  synchronously  with  the  workflow,  providing  access  to  the  underlying 
+business  data  model.    This  is  called  an  Action  Class.    Action  classes  can  also  called  under 
+other  circumstances  such  as  a  business  rule  evaluation,  a  deadline  expiring  on  a  specific 
+work item etc. 
+An  action  class  is  also  provided  which  executes  javascript,  so  that  a  scripting,  rather  than 
+coding, approach to building actions is possible and allows client and server side validation 
+code to be shared. 
+Because of the  underlying technology  of  the  CaseVision  Process  engine,  action  classes  are 
+coded  as  java  classes  and  the  code  within  an  Action  Class  is  included  in  the  transactional 
+context of both the workflow and the business data model without the coder needing to be 
+concerned with the transaction management of the underlying J2EE server – this is provided 
+by the Action Class invocation code. 
+Standalone Components 
+5.2.2 
+Because  of  the  rich  API of  the  CaseVision  Process  Engine  which  provides  both  atomic  and 
+business-service level functions, extensibility may also be realised by creating external code 
+components which utilise these interfaces. Security is maintained by requiring authentication 
+and the assignment of permissions before access to any other functions can be provided. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 13  
+CaseVision  Architecture Overview 
+Integration Architecture 
+The most common method of access to CaseVision from standalone components is via the 
+web-service API. 
+Integration Architecture 
+6 
+Figure 3 provides an overview of the main integration interfaces provided by CaseVision.  As 
+with  extensibility,  it  is  clearly  understood  that  support  for  a  wide  variety  of  different 
+integration options is mandatory when deploying a solution in large enterprises. 
+Figure 3 CaseVision  - Main Integration Points 
+Each  of  the  main  interfaces  is  described  in  a  little  more  detail.  As  always,  any  external 
+system  invoking  CaseVision  will  be  required  to  authenticate  and  be  allocated  access 
+permissions  before  further  actions  can  be  performed.    Outbound  integrations  from 
+CaseVision  may  likewise  be  required  to  authenticate  with  external  security  frameworks, 
+although this is not explicitly provided by CaseVision in most cases. 
+6.1 
+Integration methods for other systems into CaseVision 
+REST interface 
+6.1.1 
+This interface is of limited functionality but extremely useful under certain circumstances.  It 
+conforms  to  some  of  the  key  principles  of  Representational  State  Transfer  –  hence  its 
+designation.  In  CaseVision  it  is  a  HTTP  –  based  interface  which  uses  URI’s  to  specify 
+resources and (implicitly or explicitly) an action to be performed on that resource. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 14  
+CaseVision  Architecture Overview 
+Integration Architecture 
+As  an  example,  a  user  invoking  a  URI  identifying  a  particular  document  by  its  unique 
+instance reference will open the Web Workplace in the context of that document (assuming 
+they  have  permission  to  do  so).    A  more  complex  URI  may  specify  both  an  object  and  a 
+business  function  to  be  performed  on  that  object,  again,  opening  the  web  workplace  to 
+show that business function being invoked. 
+This  is  useful  in  a  wide  range  of  circumstances;  for  example  the  CaseVision  system  may 
+email a user as a result of a business exception which has arisen with a particular document.  
+Including  the  URI  of  that  document  in  the  email  along  with  a  reference  to  a  specific 
+Business Function will allow the user to open that document with a single mouse click and 
+start reviewing the exception condition immediately. 
+Function level interface 
+6.1.2 
+This is the main CaseVision Process Engine interface which is exposed both in native java, 
+SOAP and Web-Services form.   
+The interface provides both atomic action and business service level capabilities and can be 
+used by external systems and services for a wide range of applications: fetching documents, 
+invoking  business  functions  or  initiating  a  workflow,  searching  for  items,  manipulating 
+priorities, querying statuses and so on. 
+MI level interface 
+6.1.3 
+CaseVision has its own internal BI tool built into it which allows the configuration of reports 
+to  be  executed  and  rendered  onto  the  user  desktop.    This  has  the  advantage  that  all  the 
+data gathered is subject to permissions control.  However, often is it desired to supplement 
+these  “tactical” reporting needs with  management-level  enterprise reporting using  external 
+Bi tools. 
+CaseVision supports the extraction of management information in two ways. Fully published 
+schemas are available for the CaseVision Production Database.  Through direct access to the 
+published DB schemas it  is  easy  to  extract  data into  reporting tools, analysis engines  etc., 
+for  management  information  purposes  using  standard  SQL.  Data  is  available  for  both 
+specific work items currently within the system and also aggregations of data and statistics 
+across many work items and over considerable periods of time. 
+Second,  a  lot  of  information  which  is  used  in  the  internalised  Business  Activity  Monitoring 
+reports may also be useful to external MI reports and this is contained within an instance of 
+the SOLR free-text engine (which is present whether or not the option for free-text indexing 
+on production data is enabled).  This is also easy to extract if required. 
+Integration methods for CaseVision into other systems 
+6.2 
+Any of the extensibility points described in the  previous chapter may in  theory  be  used to 
+access  other  systems  or  applications.    In  practice  some  are  of  more  use  than  others,  as 
+described below: 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 15  
+CaseVision  Architecture Overview 
+Integration Architecture 
+Client side methods 
+6.2.1 
+The  web-workplace  extensions  are,  by  virtue  of  being  browser-executed  javascript,  of 
+limited  use  for  external  integrations  but  may  be  vital  for  client-side  integrations  between 
+CaseVision and other browser resources such as plug-ins. 
+However  as  noted  in  the  previous  chapter  it  is  possible  to  call  the  server  from  Web 
+Workplace java script extensions using a proxy servlet in the web-application which can be 
+customised  to  consume  remote  web-services  for  example.    One  of  the  issues  with  this 
+approach is providing a consistent and secure approach to exception handling. 
+Server side methods 
+6.2.2 
+This  is  also  the  most  common  integration  point  to  external  services  and  is  a  more 
+appropriate place to do it where the round-trip time to the external system is likely to be  
+extended. The Action Class approach (using the java language and J2EE framework) is the 
+primary point by which external interfaces are invoked from the server environment. 
+A specific action class is provided which enables direct configuration to simple web-services 
+via configuration, more advanced web-service interfaces can be built by extending this class.  
+Other integrations are, of course, possible. 
+Rich integration capabilities are available using this technology and in particular there are a 
+lot of extended transaction frameworks available from most application server environments 
+As for the client-side case, integration exceptions can prove challenging, but the provision of 
+the  business process management system  on the server  allows  for  simple configuration of 
+retry paths, compensation flows and so on. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 16  
+CaseVision  Architecture Overview 
+Authentication and Authorisation 
+7  Authentication and Authorisation 
+All access to CaseVision whether through a provided UI or through the API must be started 
+using the authentication dialogue.  Once authorised a session token is generated which will 
+obviate the need  for further  authentication unless the session is unused  for  a  configurable 
+length of time, after which the session will be terminated. 
+Authentication is (by default) via a standard username/password combination.  The default 
+authentication component can be over-ridden at CaseVision deployment time with a custom 
+one which provides alternate authentication mechanism (two-factor, RSA key etc.). 
+CaseVision  can  use  a  self-contained  user  repository  if  desired,  or  it  can  be  linked  to  a 
+corporate  one  such  as  LDAP,  Active  Directory  or  Novell  eDirectory,  all  of  which  are 
+supported.  Against this each user must be authenticated to gain access to the system and 
+from  this,  role  and  user  group  information  are  obtained. The  user,  user-group  and  role  of 
+the authenticated user is then used to govern access to CaseVision’s features and data, as 
+controlled by the extensive permissions model.   
+Where  more  complex,  or  multi-level  organisational  structures  are  required,  CaseVision  can 
+supplement  the  user-group  information  with  any  number  of  additional  configured  user-
+attributes  which  can  be  factored  into  the  permission  controls  in  the  same  way  as  a  user-
+group. 
+The main types of permission controls are: 
+•  Static Permissions 
+o  By  role  to  Business  Function  (may  be  further  limited  to  allow  access  to 
+function only at a certain workflow step or steps) 
+o  By role to casetype (may be further limited to allow access to case type only 
+in certain case states) 
+•  Permissions evaluated dynamically 
+o  By  role,  user-group  (or  attribute)  to  business  object  type  based  on  the 
+value(s) of data within each instance of that object 
+o  By user or user group to a specific instance of a business object irrespective 
+of its data content 
+It  is  worth  stressing  that  there  is  no  way  to  bypass  this  permissions  structure  –  the 
+authorisation  checks  are  built  in  at  a  fundamental  level  of  the  server  architecture  and  are 
+applied irrespective of the route by which access to the CaseVision server is gained. 
+Applications  built  using  CaseVision  have  been  deployed  in  secure  environments  and  have 
+been  assessed  (and  approved)  for  compliance  to  the  relevant  PCI  guidelines  (given  that 
+some  of  the  PCI  code  relates  to  operational  aspects  of  a  system  which  are  not  within  the 
+software’s  control).    CaseVision  systems  with  external  access  have  also  been  subjected  to 
+rigorous penetration testing and have passed. 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 17  
+CaseVision  Architecture Overview 
+Internationalisation and Accessibility 
+Internationalisation and Accessibility 
+8 
+Full  support  is  provided  for  internationalisation  of  the  end  user  interface  supporting  both 
+single  and  double  byte  character  sets  and  multiple  languages  within  a  single  CaseVision 
+instance  is  also  supported:  the  configuration  tool  has  a  function  to  export  the  configured 
+messages  in  a  text  file  which  can  be  translated  and  re-imported  with  a  different  language 
+code. Selection of the appropriate language set is determined by the locale of the browser 
+The out-of-the-box CaseVision web client fully complies with all relevant aspects of the W3C 
+Web Content Accessibility Guidelines to “AA” level.    
+9  Deployment Architecture 
+The CaseVision solution  is readily  deployable  in a  high-availability environment.   A  number 
+of techniques can be used, some of which enhance the availability of the system and others 
+improve the scalability of it.  Some will improve both. 
+All the server-side components of CaseVision can be virtualised which assists some aspects 
+of  high-availability  and  which  can  greatly  simplify  the  distribution  of  components  across 
+complex  hardware  environments.  Tools  such  as  VMWare’s  VMotion  can  help  to  automate 
+automated and low-latency recovery from failed hardware. 
+However,  with  or  without  virtualisation,  high-availability  is  best  achieved  by  clustering  the 
+application  server  and  replicating  the  database.    CaseVision  is  built  from  a  set  of  fully 
+compliant  J2EE  component  and  is  deployed  in  an  industry-standard  application  server.  All 
+serious  application  servers  support  some  kind  of  clustered  mode  although  this  is  not  itself 
+part  of  the  J2EE  specification.      BancTec  has  customers  running  CaseVision  in  JBOSS, 
+Weblogic  and  Websphere  (the  three  most  widely  used  application  servers)  in  clustered 
+configurations to provide high-availability solutions.  Many of these applications are mission-
+critical and demand uptimes in the 99%+ range. 
+Protecting  the  application  layer  through  clustering  is  most  secure  when  combined  with  a 
+database  which  offers  multiple  access  points  to  eliminate  single  failure  points  in  the  data 
+persistence  layer.    Both  Oracle  RAC  and  MS  SQL  Server  Replication  engines  are  used  in 
+conjunction with CaseVision applications to provide this additional level of resilience. 
+The Apache Tomcat web servlet engines do not generally need to be replicated or clustered 
+unless session protection is required (normally the recovery point is to the start of the user 
+transaction  being  worked  on  by  each  individual  user  since  protecting  against  this  is 
+problematic for most applications) but the Tomcat servers usually benefit from being load-
+balanced.    This  is  primarily  for  performance  reasons  but  which  also  helps  contain  any 
+hardware failures to the least number of user sessions on average. 
+CaseVision  is  also  cloud-ready.    There  are  numerous  deployments  in  both  Amazon  Web 
+Services and Azure (in IaaS mode). 
+End of Document 
+20 January 2015 
+V6.x 
+  Confidential and Proprietary 
+ 18  

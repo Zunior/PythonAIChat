@@ -1,0 +1,13 @@
+# created by virtualenv automatically
+venv
+
+# IntelliJ project files
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local

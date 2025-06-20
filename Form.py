@@ -7,7 +7,7 @@ import FileConfirmationDialog
 import GPTAI.AiResponderInterface
 import GPTAI.customgpt
 import GPTAI.OpenAI
-import FormUtil
+from FormUtil import FormUtil
 import constants
 from QueryTypeEnum import QueryType
 
@@ -32,6 +32,7 @@ class ChatApp:
         self.question_label = Label(self.master, text="Please state your question", font=("Arial", 10))
         self.answer_label = Label(self.master, text="Answer", font=("Arial", 10))
         self.error_label = Label(self.master, font=("Arial", 10), fg='#f00', wraplength=600, justify="left")
+        self.status_label = Label(self.master, font=("Arial", 10), fg='#f00', wraplength=600, justify="left")
         self.blank_line = Label(self.master, text="\n", font=("Arial", 20)) # Use separate blank labels
 
         # Entries/Text Areas
@@ -53,7 +54,7 @@ class ChatApp:
 
         # Buttons
         self.submit_button = Button(self.master, text="Ask", command=self._start_query_thread)
-        self.upload_button = Button(self.master, text='Import data', command=lambda: FormUtil.upload_action(self.error_label))
+        self.upload_button = Button(self.master, text='Import data', command=lambda: FormUtil.start_upload_thread(self))
 
         # --- Grid Layout (moved from top-level) ---
         self.title_label.grid(row=0, column=0, columnspan=2, sticky=W, padx=20, pady=10) # Added columnspan for better title centering
@@ -73,34 +74,14 @@ class ChatApp:
         # Position the progress bar near the submit button or status
         self.progress_bar.grid(row=3, column=3, columnspan=2, padx=10, sticky="ew") # Placed in grid, but not packed
 
-        self.error_label.grid(row=4, column=0, columnspan=5, sticky=W, padx=20, pady=5) # Error label before answer
-        self.answer_label.grid(row=5, column=0, sticky=W, padx=20)
-        self.answer_text.grid(row=6, column=0, columnspan=5, padx=20, pady=5, sticky="nsew")
+        self.error_label.grid(row=4, column=0, columnspan=5, sticky=W, padx=20, pady=5)
+        self.status_label.grid(row=5, column=0, columnspan=5, sticky=W, padx=20, pady=5)
+        self.answer_label.grid(row=6, column=0, sticky=W, padx=20)
+        self.answer_text.grid(row=7, column=0, columnspan=5, padx=20, pady=5, sticky="nsew")
 
         # Configure grid row and column weights for resizing
-        self.master.grid_rowconfigure(6, weight=1) # Make answer_text row expandable
+        self.master.grid_rowconfigure(7, weight=1) # Make answer_text row expandable
         self.master.grid_columnconfigure(0, weight=1) # Make question/answer column expandable
-
-    def _start_query_thread(self):
-        """Initiates the query process, showing spinner and starting a new thread."""
-        question_val = FormUtil.get_text_value(self.question_text)
-        if not question_val:
-            self.error_label.config(text="Please enter a question.")
-            return
-
-        # Clear previous error
-        self.error_label.config(text="")
-
-        # Disable UI elements and show spinner
-        self.submit_button.config(state=DISABLED)
-        self.upload_button.config(state=DISABLED)
-        self.progress_bar.start(10) # Start the animation
-        self.status_label.config(text="Asking AI, please wait...") # Update status label
-
-        # Start the long-running task in a separate thread
-        query_thread = threading.Thread(target=self._perform_query, args=(question_val,))
-        query_thread.daemon = True # Allows the program to exit if main window closes
-        query_thread.start()
 
     def _start_query_thread(self):
         """Initiates the query process, showing spinner and starting a new thread."""

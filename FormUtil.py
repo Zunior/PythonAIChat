@@ -1,8 +1,10 @@
 from tkinter import filedialog
 import pathlib
 import logging
+
+import Constants
 from FileTypeEnum import FileTypeEnum
-import PdfToText
+from PdfToText import PdfToText
 import os
 from Util import Util
 import GPTAI.customgpt
@@ -49,7 +51,7 @@ class FormUtil:
             file_type = FileTypeEnum[file_extension.upper()]
             match file_type:
                 case FileTypeEnum.PDF:
-                    content = PdfToText.extractTextFromPDF(file_full_path)
+                    content = PdfToText.extract_text_from_pdf(file_full_path)
                 case FileTypeEnum.TXT:
                     content = file_full_path
 
@@ -57,7 +59,7 @@ class FormUtil:
             (file_name, extension) = os.path.splitext(file_name_with_extension)
 
             if os.path.exists(file_full_path) and os.path.isfile(file_full_path) and content:
-                storage_full_path = GPTAI.OpenAI.OpenAI._LOCAL_DATA_DIR + "/" + file_name + ".txt"
+                storage_full_path = Constants.LOCAL_DATA_DIR + "/" + file_name + ".txt"
                 answer = False
                 if os.path.exists(storage_full_path):
                     answer = askyesno(title='Input data',

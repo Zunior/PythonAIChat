@@ -1,5 +1,8 @@
 import ntpath
 
+import nltk
+
+
 # nltk.download('punkt')
 
 class Util:
@@ -17,3 +20,17 @@ class Util:
         except Exception as e:
             return f"An error occurred: {e}"
 
+    @staticmethod
+    def split_text_no_sentence_break(text, chunk_size):
+        sentences = nltk.sent_tokenize(text)
+        result = []
+        current = ""
+        for sentence in sentences:
+            if len(current) + len(sentence) < chunk_size:
+                current += sentence + " "
+            else:
+                result.append(current.strip())
+                current = sentence + " "
+        if current:
+            result.append(current.strip())
+        return result

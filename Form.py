@@ -7,6 +7,7 @@ import FileConfirmationDialog
 import GPTAI.AiResponderInterface
 import GPTAI.customgpt
 import GPTAI.OpenAI
+import GPTAI.Gemini
 from FormUtil import FormUtil
 import settings
 from QueryTypeEnum import QueryType
@@ -48,6 +49,7 @@ class ChatApp:
         # Radio Buttons for GPT Type
         self.gpt_type_rb1 = Radiobutton(self.master, text="OpenAI", variable=self.gpt_type, value="1")
         self.gpt_type_rb2 = Radiobutton(self.master, text="Custom", variable=self.gpt_type, value="2")
+        self.gpt_type_rb3 = Radiobutton(self.master, text="Gemini", variable=self.gpt_type, value="3")
 
         # Spinner/Progress Bar (ttk.Progressbar)
         self.progress_bar = ttk.Progressbar(self.master, mode='indeterminate', length=200)
@@ -65,6 +67,7 @@ class ChatApp:
         self.blank_line.grid(row=1, column=0) # Acts as a spacer
         self.gpt_type_rb1.grid(row=1, column=2, sticky=W)
         self.gpt_type_rb2.grid(row=1, column=3, sticky=W)
+        self.gpt_type_rb3.grid(row=1, column=4, sticky=W)
 
         self.question_label.grid(row=2, column=0, sticky=W, padx=20)
         self.question_text.grid(row=3, column=0, padx=20)
@@ -121,6 +124,8 @@ class ChatApp:
                 open_ai_instance = GPTAI.OpenAI.OpenAI()
             elif current_gpt_type == "2":
                 open_ai_instance = GPTAI.customgpt.CustomGPT()
+            elif current_gpt_type == "3":
+                open_ai_instance = GPTAI.Gemini.Gemini()
             else:
                 raise ValueError("Invalid GPT type selected.")
 
